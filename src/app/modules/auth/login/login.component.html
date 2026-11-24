@@ -1,0 +1,66 @@
+<div class="flex min-h-screen items-center justify-center bg-muted/40 p-4">
+  <div class="w-full max-w-sm">
+    <div class="mb-6 flex items-center gap-3">
+      <div class="flex size-10 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground">
+        EM
+      </div>
+      <div class="leading-tight">
+        <h1 class="text-lg font-semibold text-foreground">Employee Management</h1>
+        <p class="text-xs text-muted-foreground">Masuk untuk melanjutkan</p>
+      </div>
+    </div>
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+      class="space-y-4 rounded-xl border border-border bg-card p-6 shadow-sm"
+      novalidate
+    >
+      <div class="space-y-1.5">
+        <label for="username" class="text-sm font-medium text-foreground">Username</label>
+        <input
+          id="username"
+          z-input
+          formControlName="username"
+          autocomplete="username"
+          placeholder="admin"
+          class="w-full"
+        />
+        @if (f.username.touched && f.username.invalid) {
+          <p class="text-xs text-destructive">Username wajib diisi.</p>
+        }
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="password" class="text-sm font-medium text-foreground">Password</label>
+        <input
+          id="password"
+          z-input
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          placeholder="••••••"
+          class="w-full"
+        />
+        @if (f.password.touched && f.password.invalid) {
+          <p class="text-xs text-destructive">Password minimal 5 karakter.</p>
+        }
+      </div>
+
+      @if (error()) {
+        <p class="rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+          {{ error() }}
+        </p>
+      }
+
+      <button z-button type="submit" class="w-full" [zLoading]="loading()" [zDisabled]="loading()">
+        Sign In
+      </button>
+
+      <p class="text-center text-xs text-muted-foreground">
+        Demo: <span class="font-medium text-foreground">admin</span> /
+        <span class="font-medium text-foreground">admin123</span>
+      </p>
+    </form>
+  </div>
+</div>

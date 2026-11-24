@@ -1,0 +1,115 @@
+<form [formGroup]="form" class="space-y-4 px-4 py-2" novalidate>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div class="space-y-1.5">
+      <label for="username" class="text-sm font-medium text-foreground">Username</label>
+      <input id="username" z-input formControlName="username" class="w-full" placeholder="budi.suryana001" />
+      @if (f.username.touched && f.username.hasError('required')) {
+        <p class="text-xs text-destructive">Username wajib diisi.</p>
+      }
+      @if (f.username.touched && f.username.hasError('taken')) {
+        <p class="text-xs text-destructive">Username sudah dipakai.</p>
+      }
+      @if (f.username.pending) {
+        <p class="text-xs text-muted-foreground">Memeriksa username...</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="email" class="text-sm font-medium text-foreground">Email</label>
+      <input id="email" z-input type="email" formControlName="email" class="w-full" placeholder="nama@company.co.id" />
+      @if (f.email.touched && f.email.invalid) {
+        <p class="text-xs text-destructive">Format email tidak valid.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="firstName" class="text-sm font-medium text-foreground">First Name</label>
+      <input id="firstName" z-input formControlName="firstName" class="w-full" />
+      @if (f.firstName.touched && f.firstName.invalid) {
+        <p class="text-xs text-destructive">First name wajib diisi.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="lastName" class="text-sm font-medium text-foreground">Last Name</label>
+      <input id="lastName" z-input formControlName="lastName" class="w-full" />
+      @if (f.lastName.touched && f.lastName.invalid) {
+        <p class="text-xs text-destructive">Last name wajib diisi.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="birthDate" class="text-sm font-medium text-foreground">Birth Date</label>
+      <input id="birthDate" z-input type="date" formControlName="birthDate" [attr.max]="today" class="w-full" />
+      @if (f.birthDate.touched && f.birthDate.hasError('required')) {
+        <p class="text-xs text-destructive">Tanggal lahir wajib diisi.</p>
+      }
+      @if (f.birthDate.touched && f.birthDate.hasError('future')) {
+        <p class="text-xs text-destructive">Tanggal lahir tidak boleh di masa depan.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="basicSalary" class="text-sm font-medium text-foreground">Basic Salary</label>
+      <input id="basicSalary" z-input type="number" min="1" formControlName="basicSalary" class="w-full" placeholder="9500000" />
+      @if (f.basicSalary.touched && f.basicSalary.invalid) {
+        <p class="text-xs text-destructive">Basic salary wajib diisi dan lebih dari 0.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="formStatus" class="text-sm font-medium text-foreground">Status</label>
+      <select
+        id="formStatus"
+        class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+        formControlName="status"
+      >
+        <option value="">Pilih status</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+      @if (f.status.touched && f.status.invalid) {
+        <p class="text-xs text-destructive">Status wajib dipilih.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="formGroup" class="text-sm font-medium text-foreground">Group</label>
+      <select
+        id="formGroup"
+        class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+        formControlName="group"
+      >
+        <option value="">Pilih group</option>
+        @for (g of groups; track g) {
+          <option [value]="g">{{ g }}</option>
+        }
+      </select>
+      @if (f.group.touched && f.group.invalid) {
+        <p class="text-xs text-destructive">Group wajib dipilih.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5 sm:col-span-2">
+      <label for="description" class="text-sm font-medium text-foreground">Description</label>
+      <textarea
+        id="description"
+        rows="3"
+        formControlName="description"
+        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+        placeholder="Catatan singkat tentang karyawan"
+      ></textarea>
+      @if (f.description.touched && f.description.invalid) {
+        <p class="text-xs text-destructive">Description wajib diisi.</p>
+      }
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-2 border-t border-border pt-3">
+    <button z-button zType="outline" type="button" z-sheet-close>Cancel</button>
+    <button z-button type="button" [zDisabled]="formInvalid()" (click)="commit()">
+      {{ editing ? 'Save Changes' : 'Save Employee' }}
+    </button>
+  </div>
+</form>

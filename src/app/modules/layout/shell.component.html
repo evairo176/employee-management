@@ -1,0 +1,119 @@
+<div class="min-h-screen bg-background">
+  <!-- Sidebar fixed: tinggi penuh, tidak ikut scroll konten -->
+  <aside
+    class="fixed inset-y-0 left-0 z-40 flex w-56 -translate-x-full flex-col border-r border-border bg-sidebar transition-[width,transform] duration-200 lg:translate-x-0"
+    [class.translate-x-0]="sidebarOpen()"
+    [class.lg:w-16]="sidebarCompact()"
+  >
+    <div class="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
+      <div class="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary text-[10px] font-bold text-primary-foreground">
+        EM
+      </div>
+      @if (!sidebarCompact()) {
+        <p class="truncate text-sm font-semibold text-foreground">Employee</p>
+      }
+    </div>
+
+    <nav class="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2">
+      @for (item of nav; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="bg-sidebar-accent text-foreground"
+          [routerLinkActiveOptions]="{ exact: item.path === '/employees' }"
+          class="flex items-center justify-center gap-2.5 rounded-md py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+          [class.px-2.5]="!sidebarCompact()"
+          [attr.title]="sidebarCompact() ? item.label : null"
+          (click)="sidebarOpen.set(false)"
+        >
+          <svg class="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="item.icon" />
+          </svg>
+          @if (!sidebarCompact()) { <span class="truncate">{{ item.label }}</span> }
+        </a>
+      }
+    </nav>
+
+    <div class="shrink-0 border-t border-border px-2 py-2">
+      <button
+        type="button"
+        class="hidden h-9 w-full items-center justify-center rounded-md text-[13px] font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-foreground lg:flex"
+        [class.gap-2.5]="!sidebarCompact()"
+        (click)="toggleCompact()"
+        [attr.title]="sidebarCompact() ? 'Lebarkan sidebar' : 'Ciutkan sidebar'"
+      >
+        <svg class="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+        </svg>
+        @if (!sidebarCompact()) { <span>Ciutkan</span> }
+      </button>
+    </div>
+  </aside>
+
+  @if (sidebarOpen()) {
+    <div class="fixed inset-0 z-30 bg-black/40 lg:hidden" (click)="sidebarOpen.set(false)"></div>
+  }
+
+  <!-- Konten digeser sebesar sidebar; header ikut fixed di atas -->
+  <div class="flex min-h-screen flex-col transition-[padding] duration-200" [class.lg:pl-56]="!sidebarCompact()" [class.lg:pl-16]="sidebarCompact()">
+    <header
+      class="fixed top-0 right-0 left-0 z-20 flex h-14 items-center justify-between gap-3 border-b border-border bg-background/90 px-3 backdrop-blur transition-[left] duration-200 sm:px-4"
+      [class.lg:left-56]="!sidebarCompact()"
+      [class.lg:left-16]="sidebarCompact()"
+    >
+      <div class="flex min-w-0 items-center gap-2">
+        <button
+          type="button"
+          class="inline-flex size-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-accent lg:hidden"
+          (click)="toggleSidebar()"
+          aria-label="Buka menu"
+        >
+          <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+          </svg>
+        </button>
+        <p class="truncate text-[13px] text-muted-foreground">Frontend Technical Assessment</p>
+      </div>
+
+      <!-- Avatar = trigger menu akun (profil + logout) -->
+      <div class="ml-auto flex h-full shrink-0 items-center">
+      <z-dropdown-menu #menu="zDropdownMenu" [class]="'min-w-[15rem]'">
+        <button
+          dropdown-trigger
+          type="button"
+          class="flex size-8 items-center justify-center rounded-full ring-offset-2 ring-offset-background transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          aria-label="Menu akun"
+        >
+          <z-avatar zSize="default" zSrc="" [zFallback]="initials()" zAlt="Foto profil" />
+        </button>
+
+        <div class="flex flex-col gap-0">
+          <div class="flex flex-col px-1.5 py-1">
+            <span class="truncate text-[13px] font-semibold text-foreground">{{ session()?.name }}</span>
+            <span class="truncate text-[11px] font-normal text-muted-foreground">{{ session()?.role }}</span>
+          </div>
+          <z-dropdown-menu-separator />
+
+          <a z-dropdown-menu-item [routerLink]="['/profile']" class="gap-2" (click)="closeMenu()">
+            <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Profile
+          </a>
+
+          <z-dropdown-menu-separator />
+          <button z-dropdown-menu-item zVariant="destructive" type="button" class="gap-2" (click)="logout()">
+            <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+            </svg>
+            Logout
+          </button>
+        </div>
+      </z-dropdown-menu>
+      </div>
+    </header>
+
+    <main class="flex-1 px-3 pt-[4.5rem] pb-6 sm:px-5 lg:px-6">
+      <router-outlet />
+    </main>
+  </div>
+</div>

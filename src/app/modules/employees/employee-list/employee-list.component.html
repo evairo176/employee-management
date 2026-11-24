@@ -1,0 +1,166 @@
+<div class="mx-auto max-w-7xl space-y-4">
+  <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-lg font-semibold text-foreground">Direktori karyawan</h1>
+      <p class="text-[13px] text-muted-foreground">{{ total() }} data ditemukan.</p>
+    </div>
+    <button z-button type="button" (click)="openForm()" class="w-full sm:w-auto">
+      <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      Add Employee
+    </button>
+  </header>
+
+  <!-- Filter bar: 2 parameter pencarian + status + page size -->
+  <section class="rounded-lg border border-border bg-card p-3">
+    <div class="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="space-y-1 lg:col-span-2">
+        <label for="keyword" class="text-[11px] font-medium text-muted-foreground">Kata kunci</label>
+        <div class="relative">
+          <svg class="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z" />
+          </svg>
+          <input
+            id="keyword"
+            z-input
+            class="w-full pl-8"
+            placeholder="Cari karyawan..."
+            [value]="keywordDraft()"
+            (input)="onKeyword($any($event.target).value)"
+          />
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <label for="field" class="text-[11px] font-medium text-muted-foreground">Cari di kolom</label>
+        <select
+          id="field"
+          class="h-9 w-full rounded-md border border-input bg-background px-2.5 text-[13px] text-foreground"
+          [value]="query().field"
+          (change)="onField($any($event.target).value)"
+        >
+          @for (f of searchFields; track f.value) {
+            <option [value]="f.value">{{ f.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="space-y-1">
+        <label for="status" class="text-[11px] font-medium text-muted-foreground">Status</label>
+        <select
+          id="status"
+          class="h-9 w-full rounded-md border border-input bg-background px-2.5 text-[13px] text-foreground"
+          [value]="query().status"
+          (change)="onStatus($any($event.target).value)"
+        >
+          <option value="">Semua status</option>
+          @for (s of statuses; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2.5">
+      <div class="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+        <span>Tampilkan</span>
+        <select
+          aria-label="Jumlah per halaman"
+          class="h-7 rounded-md border border-input bg-background px-1.5 text-[11px] text-foreground"
+          [value]="query().limit"
+          (change)="onLimit($any($event.target).value)"
+        >
+          @for (n of pageSizes; track n) {
+            <option [value]="n">{{ n }}</option>
+          }
+        </select>
+        <span>per halaman</span>
+      </div>
+      <button z-button zType="ghost" zSize="sm" type="button" (click)="reset()">Reset filter</button>
+    </div>
+  </section>
+
+  <!-- Tabel -->
+  <section class="overflow-hidden rounded-lg border border-border bg-card">
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[860px] text-[13px]">
+        <thead class="bg-muted/60">
+          <tr class="border-b border-border text-left">
+            @for (col of [
+              { key: 'username', label: 'Username' },
+              { key: 'firstName', label: 'Nama' },
+              { key: 'email', label: 'Email' },
+              { key: 'group', label: 'Group' },
+              { key: 'status', label: 'Status' },
+              { key: 'basicSalary', label: 'Basic Salary' }
+            ]; track col.key) {
+              <th class="px-3 py-2.5 font-medium text-muted-foreground">
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 hover:text-foreground"
+                  (click)="sort($any(col.key))"
+                >
+                  {{ col.label }}
+                  <svg class="size-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="sortIcon($any(col.key))" />
+                  </svg>
+                </button>
+              </th>
+            }
+            <th class="px-3 py-2.5 text-right font-medium text-muted-foreground">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.id) {
+            <tr class="border-b border-border last:border-0 hover:bg-muted/40">
+              <td class="px-3 py-2 font-medium text-foreground">{{ row.username }}</td>
+              <td class="px-3 py-2">
+                <a
+                  [routerLink]="['/employees', row.id]"
+                  (click)="rememberPosition()"
+                  class="text-primary hover:underline"
+                >{{ row.firstName }} {{ row.lastName }}</a>
+              </td>
+              <td class="px-3 py-2 text-muted-foreground">{{ row.email }}</td>
+              <td class="px-3 py-2 text-muted-foreground">{{ row.group }}</td>
+              <td class="px-3 py-2">
+                <z-badge [zType]="badgeType(row.status)">{{ row.status }}</z-badge>
+              </td>
+              <td class="px-3 py-2 tabular-nums text-foreground">{{ money(row.basicSalary) }}</td>
+              <td class="px-3 py-2">
+                <div class="flex items-center justify-end gap-1.5">
+                  <button z-button zType="outline" zSize="sm" type="button" (click)="openForm(row)">Edit</button>
+                  <button z-button zType="destructive" zSize="sm" type="button" (click)="confirmDelete(row)">Delete</button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="px-3 py-10 text-center text-[13px] text-muted-foreground">
+                Tidak ada karyawan yang cocok dengan filter.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex flex-col gap-2 border-t border-border px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+      <p class="text-[11px] text-muted-foreground">{{ rangeLabel() }}</p>
+      <div class="flex items-center gap-1">
+        <button z-button zType="outline" zSize="sm" type="button" [zDisabled]="query().page === 1" (click)="goPage(query().page - 1)">Prev</button>
+        @for (p of pageNumbers(); track p) {
+          <button
+            z-button
+            [zType]="p === query().page ? 'default' : 'ghost'"
+            zSize="sm"
+            type="button"
+            (click)="goPage(p)"
+          >{{ p }}</button>
+        }
+        <button z-button zType="outline" zSize="sm" type="button" [zDisabled]="query().page >= totalPages()" (click)="goPage(query().page + 1)">Next</button>
+      </div>
+    </div>
+  </section>
+</div>

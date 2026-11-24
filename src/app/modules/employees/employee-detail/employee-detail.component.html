@@ -1,0 +1,48 @@
+<div class="mx-auto max-w-3xl space-y-5">
+  @if (employee(); as e) {
+    <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-center gap-3">
+        <div class="flex size-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+          {{ e.firstName.charAt(0) }}{{ e.lastName.charAt(0) }}
+        </div>
+        <div>
+          <h1 class="text-xl font-semibold text-foreground">{{ e.firstName }} {{ e.lastName }}</h1>
+          <p class="text-sm text-muted-foreground">{{ e.username }}</p>
+        </div>
+      </div>
+      <button z-button type="button" (click)="back()">Ok</button>
+    </header>
+
+    <section class="rounded-xl border border-border bg-card">
+      <dl class="divide-y divide-border">
+        @for (row of [
+          { label: 'Username', value: e.username },
+          { label: 'First Name', value: e.firstName },
+          { label: 'Last Name', value: e.lastName },
+          { label: 'Email', value: e.email },
+          { label: 'Birth Date', value: date(e.birthDate) },
+          { label: 'Basic Salary', value: money(e.basicSalary) },
+          { label: 'Group', value: e.group }
+        ]; track row.label) {
+          <div class="flex flex-col gap-1 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <dt class="text-sm text-muted-foreground">{{ row.label }}</dt>
+            <dd class="text-sm font-medium text-foreground sm:text-right">{{ row.value }}</dd>
+          </div>
+        }
+        <div class="flex flex-col gap-1 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <dt class="text-sm text-muted-foreground">Status</dt>
+          <dd><z-badge [zType]="badgeType(e.status)">{{ e.status }}</z-badge></dd>
+        </div>
+        <div class="flex flex-col gap-1 px-5 py-3">
+          <dt class="text-sm text-muted-foreground">Description</dt>
+          <dd class="text-sm text-foreground">{{ e.description }}</dd>
+        </div>
+      </dl>
+    </section>
+  } @else {
+    <div class="rounded-xl border border-border bg-card px-6 py-16 text-center">
+      <p class="text-sm text-muted-foreground">Employee dengan id {{ id }} tidak ditemukan.</p>
+      <a z-button zType="outline" routerLink="/employees" class="mt-4">Back to list</a>
+    </div>
+  }
+</div>
